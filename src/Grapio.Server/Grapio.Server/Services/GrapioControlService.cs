@@ -74,7 +74,7 @@ public class GrapioControlService(IFeatureFlagRepository repository): ControlSer
         return new FeatureFlagControlReply
         {
             Success = true, 
-            Message = $"Successfully unset ({request.Key},{request.Consumer})"
+            Message = $"Successfully unset ({request.Key},{request.Consumer})."
         };
     }
 }
