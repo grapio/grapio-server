@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+option csharp_namespace = "Grapio.Server";
+
+package grapio;
+
+service ControlService {
+  rpc FetchFeatureFlags (FeatureFlagsFetchRequest) returns (stream FeatureFlagsFetchReply);
+  rpc FetchFeatureFlagsByKey (FeatureFlagsByKeyFetchRequest) returns (stream FeatureFlagFetchReply);
+  rpc FetchFeatureFlagsByConsumer (FeatureFlagsByConsumerFetchRequest) returns (stream FeatureFlagFetchReply);
+  rpc FetchFeatureFlagByKeyAndConsumer (FeatureFlagByKeyAndConsumerFetchRequest) returns (FeatureFlagFetchReply);
+  rpc SetFeatureFlag (FeatureFlagSetRequest) returns (FeatureFlagControlReply);
+  rpc UnsetFeatureFlag (FeatureFlagUnsetRequest) returns (FeatureFlagControlReply);
+}
+
+message FeatureFlagsByKeyFetchRequest {
+  string key = 1;
+}
+
+message FeatureFlagsByConsumerFetchRequest {
+  string consumer = 1;
+}
+
+message FeatureFlagByKeyAndConsumerFetchRequest {
+  string key = 1;
+  string consumer = 2;
+}
+
+message FeatureFlagsFetchRequest {
+}
+
+message FeatureFlagsFetchReply {
+  string key = 1;
+  string consumer = 2;
+}
+
+message FeatureFlagFetchReply {
+  string key = 1;
+  string value = 2;
+  string consumer = 3;
+}
+
+message FeatureFlagSetRequest {
+  string key = 1;
+  string value = 2;
+  string consumer = 3;
+}
+
+message FeatureFlagUnsetRequest {
+  string key = 1;
+  string consumer = 2;
+}
+
+message FeatureFlagControlReply {
+  bool success = 1;
+  string message = 2;
+}

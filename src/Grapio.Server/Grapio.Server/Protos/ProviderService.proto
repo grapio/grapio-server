@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option csharp_namespace = "Grapio.Server";
+
+package grapio;
+
+service ProviderService {
+  rpc FetchFeatureFlags (FeatureFlagsRequest) returns (stream FeatureFlagReply);
+}
+
+message FeatureFlagsRequest {
+  string requester = 1;
+}
+
+message FeatureFlagReply {
+  string key = 1;
+  oneof value {
+    bool boolean_value = 2;
+    int32 integer_value = 3;
+    double double_value = 4;
+    string string_value = 5;
+    bytes structure_value = 6;
+  }
+}
