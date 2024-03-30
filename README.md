@@ -11,7 +11,6 @@
 Grapio Server is the server component of the [Grapio Provider for .NET](https://github.com/grapio/grapio-openfeature-provider-dotnet) that stores and manages feature flags. 
 
 ## Workings
-
 A crude type detector is used to determine the type of value that is stored in the database. It currently detects the following types:
 1. Boolean
 2. Integer
@@ -26,11 +25,11 @@ A typical Grapio configuration section is shown from the `appsettings.json` file
 
 ```
 "Grapio": {
-    "ConnectionString": "DataSource=grapio.db;Mode=ReadWriteCreate;",
-    "ControlServiceHost": "*:3280",
-    "ProviderServiceHost": "*:3278"
+    "ConnectionString": "DataSource=grapio.db;Mode=ReadWriteCreate;"
 }
 ```
+
+To change the endpoints for the Kestrel [follow these instructions](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints?view=aspnetcore-8.0).
 
 ## Contributing
 To get started, have a look at the [CONTRIBUTING](https://github.com/grapio/grapio-openfeature-provider-dotnet/blob/main/CONTRIBUTING.md) guide.

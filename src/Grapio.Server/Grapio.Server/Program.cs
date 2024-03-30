@@ -14,6 +14,7 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 builder.Services.AddGrpc();
+
 builder.Services.AddGrapio(config =>
 {
     builder.Configuration.GetSection("Grapio").Bind(config);
@@ -27,9 +28,8 @@ using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>(
     context.Database.Migrate();
 }
 
-var grapioConfig = app.Services.GetRequiredService<GrapioConfiguration>();
-app.MapGrpcService<GrapioProviderService>().RequireHost(grapioConfig.ProviderServiceHost);
-app.MapGrpcService<GrapioControlService>().RequireHost(grapioConfig.ControlServiceHost);
+app.MapGrpcService<GrapioProviderService>();
+app.MapGrpcService<GrapioControlService>();
 
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client.");
 
