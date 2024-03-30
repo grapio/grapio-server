@@ -21,5 +21,16 @@ A crude type detector is used to determine the type of value that is stored in t
 
 Note: The type detector assumes that all YAML documents starts with `---`.
 
+## Configuration
+A typical Grapio configuration section is shown from the `appsettings.json` file. 
+
+```
+"Grapio": {
+    "ConnectionString": "DataSource=grapio.db;Mode=ReadWriteCreate;",
+    "ControlServiceHost": "*:3280",
+    "ProviderServiceHost": "*:3278"
+}
+```
+
 ## Contributing
 To get started, have a look at the [CONTRIBUTING](https://github.com/grapio/grapio-openfeature-provider-dotnet/blob/main/CONTRIBUTING.md) guide.

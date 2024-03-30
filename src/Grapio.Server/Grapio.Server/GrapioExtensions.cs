@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Grapio.Server;
 
@@ -9,6 +8,8 @@ public static class GrapioExtensions
     {
         var config = new GrapioConfiguration();
         configuration(config);
+        
+        serviceCollection.AddSingleton(config);
 
         serviceCollection.AddDbContext<GrapioDbContext>(options =>
         {
