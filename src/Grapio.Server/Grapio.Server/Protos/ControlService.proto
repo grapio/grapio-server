@@ -38,6 +38,7 @@ message FeatureFlagFetchReply {
   string key = 1;
   string value = 2;
   string consumer = 3;
+  bool isPopulated = 4;
 }
 
 message FeatureFlagSetRequest {

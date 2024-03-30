@@ -12,8 +12,6 @@ public interface IFeatureFlagRepository
 
 internal class FeatureFlagRepository(GrapioDbContext dbContext, ILogger<FeatureFlagRepository> logger) : IFeatureFlagRepository
 {
-    private const string UniversalConsumer = "*";
-    
     public async Task InsertOrUpdateFeatureFlag(FeatureFlag featureFlag, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
@@ -76,7 +74,7 @@ internal class FeatureFlagRepository(GrapioDbContext dbContext, ILogger<FeatureF
         ArgumentException.ThrowIfNullOrEmpty(consumer, nameof(consumer));
 
         logger.LogDebug("Fetching feature flags that match consumer {consumer} or *", consumer);
-        return dbContext.FeatureFlags.Where(ff => ff.Consumer == consumer || ff.Consumer == UniversalConsumer);
+        return dbContext.FeatureFlags.Where(ff => ff.Consumer == consumer || ff.Consumer == Constants.UniversalConsumer);
     }
     
     public async Task<FeatureFlag?> FetchFeatureFlagByKeyAndConsumer(string key, string consumer, CancellationToken cancellationToken)

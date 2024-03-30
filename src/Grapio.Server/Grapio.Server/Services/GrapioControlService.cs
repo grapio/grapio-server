@@ -4,7 +4,7 @@ namespace Grapio.Server.Services;
 
 public class GrapioControlService(IFeatureFlagRepository repository): ControlService.ControlServiceBase
 {
-    public override Task FetchFeatureFlags(FeatureFlagsFetchRequest request, IServerStreamWriter<FeatureFlagsFetchReply> responseStream, ServerCallContext context)
+    public override async Task FetchFeatureFlags(FeatureFlagsFetchRequest request, IServerStreamWriter<FeatureFlagsFetchReply> responseStream, ServerCallContext context)
     {
         ArgumentNullException.ThrowIfNull(repository);
         
@@ -12,29 +12,36 @@ public class GrapioControlService(IFeatureFlagRepository repository): ControlSer
 
         foreach (var ff in featureFlags)
         {
-            responseStream.WriteAsync(new FeatureFlagsFetchReply
+            await responseStream.WriteAsync(new FeatureFlagsFetchReply
             {
                 Key = ff.Item1,
                 Consumer = ff.Item2
             });
         }
-
-        return Task.CompletedTask;
     }
 
-    public override Task FetchFeatureFlagsByKey(FeatureFlagsByKeyFetchRequest request, IServerStreamWriter<FeatureFlagFetchReply> responseStream, ServerCallContext context)
+    public override async Task FetchFeatureFlagsByKey(FeatureFlagsByKeyFetchRequest request, IServerStreamWriter<FeatureFlagFetchReply> responseStream, ServerCallContext context)
     {
-        return base.FetchFeatureFlagsByKey(request, responseStream, context);
+        ArgumentNullException.ThrowIfNull(repository);
+
+        var featureFlags = repository.FetchFeatureFlagsByKey(request.Key);
+        await WriteFeatureFlagsToStream(responseStream, featureFlags, context.CancellationToken);
     }
     
-    public override Task FetchFeatureFlagsByConsumer(FeatureFlagsByConsumerFetchRequest request, IServerStreamWriter<FeatureFlagFetchReply> responseStream, ServerCallContext context)
+    public override async Task FetchFeatureFlagsByConsumer(FeatureFlagsByConsumerFetchRequest request, IServerStreamWriter<FeatureFlagFetchReply> responseStream, ServerCallContext context)
     {
-        return base.FetchFeatureFlagsByConsumer(request, responseStream, context);
+        ArgumentNullException.ThrowIfNull(repository);
+
+        var featureFlags = repository.FetchFeatureFlagsByConsumer(request.Consumer);
+        await WriteFeatureFlagsToStream(responseStream, featureFlags, context.CancellationToken);
     }
 
-    public override Task<FeatureFlagFetchReply> FetchFeatureFlagByKeyAndConsumer(FeatureFlagByKeyAndConsumerFetchRequest request, ServerCallContext context)
+    public override async Task<FeatureFlagFetchReply> FetchFeatureFlagByKeyAndConsumer(FeatureFlagByKeyAndConsumerFetchRequest request, ServerCallContext context)
     {
-        return base.FetchFeatureFlagByKeyAndConsumer(request, context);
+        ArgumentNullException.ThrowIfNull(repository);
+
+        var featureFlag = await repository.FetchFeatureFlagByKeyAndConsumer(request.Key, request.Consumer, context.CancellationToken);
+        return featureFlag == null ? new FeatureFlagFetchReply { IsPopulated = false} : PopulateFeatureFlagFetchReply(featureFlag);
     }
 
     public override async Task<FeatureFlagControlReply> SetFeatureFlag(FeatureFlagSetRequest request, ServerCallContext context)
@@ -43,7 +50,7 @@ public class GrapioControlService(IFeatureFlagRepository repository): ControlSer
         
         var featureFlags = repository.FetchFeatureFlagsByKey(request.Key).ToArray();
 
-        if (request.Consumer == "*" && featureFlags.Any(ff => ff.Consumer != "*"))
+        if (request.Consumer == Constants.UniversalConsumer && featureFlags.Any(ff => ff.Consumer != Constants.UniversalConsumer))
         {
             return new FeatureFlagControlReply
             {
@@ -52,7 +59,7 @@ public class GrapioControlService(IFeatureFlagRepository repository): ControlSer
             };
         }
         
-        if (request.Consumer != "*" && featureFlags.Any(ff => ff.Consumer == "*"))
+        if (request.Consumer != Constants.UniversalConsumer && featureFlags.Any(ff => ff.Consumer == Constants.UniversalConsumer))
         {
             return new FeatureFlagControlReply
             {
@@ -75,6 +82,23 @@ public class GrapioControlService(IFeatureFlagRepository repository): ControlSer
         {
             Success = true, 
             Message = $"Successfully unset ({request.Key},{request.Consumer})."
+        };
+    }
+    
+    private static async Task WriteFeatureFlagsToStream(IAsyncStreamWriter<FeatureFlagFetchReply> responseStream, IEnumerable<FeatureFlag> featureFlags, CancellationToken cancellationToken)
+    {
+        foreach (var ff in featureFlags)
+            await responseStream.WriteAsync(PopulateFeatureFlagFetchReply(ff), cancellationToken);
+    }
+
+    private static FeatureFlagFetchReply PopulateFeatureFlagFetchReply(FeatureFlag ff)
+    {
+        return new FeatureFlagFetchReply
+        {
+            Key = ff.FlagKey,
+            Consumer = ff.Consumer,
+            Value = ff.Value,
+            IsPopulated = true
         };
     }
 }

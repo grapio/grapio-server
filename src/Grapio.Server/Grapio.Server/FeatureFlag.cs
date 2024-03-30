@@ -9,13 +9,7 @@ public class FeatureFlag: IEquatable<FeatureFlag>
     private FeatureFlag()
     {
     }
-
-    public static FeatureFlag Null = new NullFeatureFlag();
-
-    private class NullFeatureFlag : FeatureFlag
-    {
-    }
-    
+   
     public FeatureFlag(string flagKey, string value, string consumer = "*")
     {
         ArgumentException.ThrowIfNullOrEmpty(flagKey, nameof(flagKey));
